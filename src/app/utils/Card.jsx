@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import GiftTracker from './GiftTracker'
+// import GiftTracker from './GiftTracker'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -276,7 +276,7 @@ const Card = () => {
   viewport={{ once: true, amount: 0.3 }}
   className="w-full max-w-md"
 >
-  <GiftTracker />
+  {/* <GiftTracker /> */}
 </motion.div>
 
         {/* Kart 6: Katilim Bildirimi */}
