@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Great_Vibes, Playfair_Display } from "next/font/google";
 import { motion } from "framer-motion";
-
+import { Music2 } from "lucide-react";
 import WeddingGlow from "./components/WeddingGlow";
 import Countdown from "./components/Countdown";
 
@@ -68,8 +68,80 @@ function DateCard({ label, day, date, time }) {
 }
 
 const Header = () => {
+  const audioRef = useRef(null);
+const [isPlaying, setIsPlaying] = useState(true);
+
+useEffect(() => {
+  const audio = audioRef.current;
+
+  if (!audio) return;
+
+  audio.volume = 0.35;
+
+  const playMusic = async () => {
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch (err) {
+      // Tarayıcı otomatik oynatmayı engellerse kullanıcı butona basınca başlar.
+      setIsPlaying(false);
+    }
+  };
+
+  playMusic();
+}, []);
+
+const toggleMusic = async () => {
+  const audio = audioRef.current;
+
+  if (!audio) return;
+
+  if (isPlaying) {
+    audio.pause();
+    setIsPlaying(false);
+  } else {
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
   return (
-    <div
+    <>
+    <audio
+  ref={audioRef}
+  src="/weddingmusic.mp3"
+  loop
+  preload="auto"
+/>
+
+<button
+  onClick={toggleMusic}
+  className="fixed top-5 right-5 z-[9999]
+             w-14 h-14
+             rounded-full
+             bg-[#c9a45c]/90
+             border border-[#f6e6b8]
+             shadow-2xl
+             backdrop-blur-md
+             flex items-center justify-center
+             transition-all duration-300
+             hover:scale-110"
+>
+  <Music2
+    size={28}
+    className={`text-white transition-all duration-300 ${
+      isPlaying ? "animate-spin" : ""
+    }`}
+    style={{
+      animationDuration: "4s",
+      textDecoration: !isPlaying ? "line-through" : "none",
+    }}
+  />
+</button>
+     <div
       className="w-full"
       style={{
         background: "#faf4ea",
@@ -259,7 +331,8 @@ const Header = () => {
           22 – 23 Ağustos 2026
         </p>
       </footer>
-    </div>
+    </div></>
+   
   );
 };
 
