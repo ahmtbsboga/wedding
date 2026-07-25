@@ -6,6 +6,7 @@ import { Great_Vibes, Playfair_Display } from "next/font/google";
 import { motion } from "framer-motion";
 
 import WeddingGlow from "./components/WeddingGlow";
+import Countdown from "./components/Countdown";
 
 const greatVibes = Great_Vibes({
   weight: "400",
@@ -130,6 +131,8 @@ const Header = () => {
             />
           </div>
         </Reveal>
+
+        <Countdown/>
 
         <Reveal delay={0.2} className="mt-14 max-w-xl text-center">
           <p

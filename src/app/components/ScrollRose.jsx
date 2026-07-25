@@ -195,7 +195,7 @@ export default function ScrollRose() {
         Şeyda &amp; Ahmet
       </p>
 
-      <p
+         <p
         ref={subTextRef}
         className={playfair.className}
         style={{
@@ -204,6 +204,9 @@ export default function ScrollRose() {
           fontSize: 13,
           letterSpacing: 4,
           textTransform: "uppercase",
+          textAlign: "center",
+          maxWidth: "80vw",
+          padding: "0 16px",
         }}
       >
         Aşkımızın en güzel gününe davetlisiniz
