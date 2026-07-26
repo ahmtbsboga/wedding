@@ -73,7 +73,6 @@ function buildRoseLayout() {
 function buildShardConfigs() {
   const targets = buildRoseLayout();
   return targets.map((t, index) => {
-    // Dağılım mesafesi KISALTILDI
     const dist = 150 + Math.random() * 250;
     const angle = Math.random() * Math.PI * 2;
     const scatterX = Math.cos(angle + (index * 0.08)) * dist;
@@ -132,8 +131,8 @@ export default function ScrollRose() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=2800",
-          scrub: 1.2,
+          end: "+=1600", // 2800'den 1600'e düşürüldü - DAHA HIZLI
+          scrub: 0.8, // 1.2'den 0.8'e düşürüldü - DAHA HIZLI
           pin: true,
           invalidateOnRefresh: true,
         },
@@ -144,8 +143,8 @@ export default function ScrollRose() {
 
       petals.forEach((el, i) => {
         const ringIndex = Math.floor(i / 10);
-        const delay = (i * 0.005) + (ringIndex * 0.015);
-        const duration = 0.5 + Math.random() * 0.4;
+        const delay = (i * 0.003) + (ringIndex * 0.01); // Gecikme azaltıldı
+        const duration = 0.4 + Math.random() * 0.3; // Süre azaltıldı
         
         tl.to(
           el,
@@ -166,20 +165,20 @@ export default function ScrollRose() {
         svgRef.current,
         {
           scale: 1.12,
-          duration: 0.5,
+          duration: 0.3, // 0.5'ten 0.3'e
           ease: "power1.inOut",
         },
-        "-=0.5"
+        "-=0.3"
       );
 
       tl.to(
         svgRef.current,
         {
           scale: 1.07,
-          duration: 0.3,
+          duration: 0.2, // 0.3'ten 0.2'ye
           ease: "power1.inOut",
         },
-        "-=0.2"
+        "-=0.15"
       );
 
       tl.to(
@@ -188,10 +187,10 @@ export default function ScrollRose() {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.5,
+          duration: 0.3, // 0.5'ten 0.3'e
           ease: "back.out(2)",
         },
-        "-=0.2"
+        "-=0.15"
       );
 
       tl.to(
@@ -200,28 +199,28 @@ export default function ScrollRose() {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.4,
+          duration: 0.25, // 0.4'ten 0.25'e
           ease: "back.out(1.8)",
         },
-        "-=0.2"
+        "-=0.1"
       );
 
       tl.to(
         svgRef.current,
         {
-          y: -6,
-          duration: 1,
+          y: -4,
+          duration: 0.6, // 1'den 0.6'ya
           ease: "sine.inOut",
         },
-        "+=0.2"
+        "+=0.15"
       ).to(
         svgRef.current,
         {
           y: 0,
-          duration: 1,
+          duration: 0.6, // 1'den 0.6'ya
           ease: "sine.inOut",
         },
-        "+=0.1"
+        "+=0.05"
       );
 
     }, sectionRef);
@@ -254,7 +253,7 @@ export default function ScrollRose() {
         />
       </div>
 
-      {/* Gül SVG - BOYUT KÜÇÜLTÜLDÜ */}
+      {/* Gül SVG */}
       <div
         ref={containerRef}
         className="relative z-10"
@@ -267,8 +266,8 @@ export default function ScrollRose() {
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
-          width={340}  // 440'ten 340'a düşürüldü
-          height={340} // 440'ten 340'a düşürüldü
+          width={340}
+          height={340}
           style={{
             transformOrigin: "center center",
             overflow: "visible",
@@ -294,13 +293,13 @@ export default function ScrollRose() {
       </div>
 
       {/* İsim ve alt yazı */}
-      <div className="relative z-10 flex flex-col items-center mt-4"> {/* mt-6'dan mt-4'e düşürüldü */}
+      <div className="relative z-10 flex flex-col items-center mt-4">
         <p
           ref={afterTextRef}
           className={greatVibes.className}
           style={{
             color: "#9c7a3c",
-            fontSize: "clamp(36px, 8vw, 56px)", // 64'ten 56'ya düşürüldü
+            fontSize: "clamp(36px, 8vw, 56px)",
             textShadow: "0 2px 30px rgba(156, 124, 60, 0.2)",
             lineHeight: 1.2,
             letterSpacing: 2,
@@ -313,10 +312,10 @@ export default function ScrollRose() {
           ref={subTextRef}
           className={playfair.className}
           style={{
-            marginTop: 10, // 14'ten 10'a düşürüldü
+            marginTop: 10,
             color: "#7a6440",
-            fontSize: "clamp(11px, 2vw, 14px)", // 15'ten 14'e düşürüldü
-            letterSpacing: 4, // 5'ten 4'e düşürüldü
+            fontSize: "clamp(11px, 2vw, 14px)",
+            letterSpacing: 4,
             textTransform: "uppercase",
             textAlign: "center",
             maxWidth: "80vw",
