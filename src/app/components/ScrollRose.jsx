@@ -73,7 +73,8 @@ function buildRoseLayout() {
 function buildShardConfigs() {
   const targets = buildRoseLayout();
   return targets.map((t, index) => {
-    const dist = 200 + Math.random() * 350;
+    // Dağılım mesafesi KISALTILDI
+    const dist = 150 + Math.random() * 250;
     const angle = Math.random() * Math.PI * 2;
     const scatterX = Math.cos(angle + (index * 0.08)) * dist;
     const scatterY = Math.sin(angle + (index * 0.08)) * dist * 0.8;
@@ -83,7 +84,7 @@ function buildShardConfigs() {
       scatterX: scatterX,
       scatterY: scatterY,
       scatterRotation: Math.random() * 720 - 360,
-      scatterScale: 0.2 + Math.random() * 0.4,
+      scatterScale: 0.15 + Math.random() * 0.3,
       scatterOpacity: 0.15 + Math.random() * 0.25,
     };
   });
@@ -253,7 +254,7 @@ export default function ScrollRose() {
         />
       </div>
 
-      {/* Gül SVG */}
+      {/* Gül SVG - BOYUT KÜÇÜLTÜLDÜ */}
       <div
         ref={containerRef}
         className="relative z-10"
@@ -266,8 +267,8 @@ export default function ScrollRose() {
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
-          width={440}
-          height={440}
+          width={340}  // 440'ten 340'a düşürüldü
+          height={340} // 440'ten 340'a düşürüldü
           style={{
             transformOrigin: "center center",
             overflow: "visible",
@@ -293,13 +294,13 @@ export default function ScrollRose() {
       </div>
 
       {/* İsim ve alt yazı */}
-      <div className="relative z-10 flex flex-col items-center mt-6">
+      <div className="relative z-10 flex flex-col items-center mt-4"> {/* mt-6'dan mt-4'e düşürüldü */}
         <p
           ref={afterTextRef}
           className={greatVibes.className}
           style={{
             color: "#9c7a3c",
-            fontSize: "clamp(40px, 10vw, 64px)",
+            fontSize: "clamp(36px, 8vw, 56px)", // 64'ten 56'ya düşürüldü
             textShadow: "0 2px 30px rgba(156, 124, 60, 0.2)",
             lineHeight: 1.2,
             letterSpacing: 2,
@@ -312,10 +313,10 @@ export default function ScrollRose() {
           ref={subTextRef}
           className={playfair.className}
           style={{
-            marginTop: 14,
+            marginTop: 10, // 14'ten 10'a düşürüldü
             color: "#7a6440",
-            fontSize: "clamp(12px, 2.2vw, 15px)",
-            letterSpacing: 5,
+            fontSize: "clamp(11px, 2vw, 14px)", // 15'ten 14'e düşürüldü
+            letterSpacing: 4, // 5'ten 4'e düşürüldü
             textTransform: "uppercase",
             textAlign: "center",
             maxWidth: "80vw",
