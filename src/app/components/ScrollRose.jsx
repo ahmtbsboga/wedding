@@ -28,11 +28,22 @@ const PETAL_PATH = "M0,0 C-14,-8 -18,-30 0,-48 C18,-30 14,-8 0,0 Z";
 
 function buildRoseLayout() {
   const rings = [
-    { count: 5, radius: 8, scale: 0.5, rotOffset: 0 },
-    { count: 6, radius: 22, scale: 0.7, rotOffset: 25 },
-    { count: 7, radius: 42, scale: 0.9, rotOffset: 10 },
-    { count: 8, radius: 66, scale: 1.1, rotOffset: 30 },
-    { count: 9, radius: 94, scale: 1.3, rotOffset: 5 },
+    { count: 6, radius: 5, scale: 0.35, rotOffset: 0 },
+    { count: 7, radius: 11, scale: 0.42, rotOffset: 20 },
+    { count: 8, radius: 18, scale: 0.50, rotOffset: 10 },
+    { count: 9, radius: 26, scale: 0.58, rotOffset: 30 },
+    { count: 10, radius: 35, scale: 0.68, rotOffset: 5 },
+    { count: 11, radius: 45, scale: 0.78, rotOffset: 25 },
+    { count: 12, radius: 56, scale: 0.88, rotOffset: 15 },
+    { count: 13, radius: 68, scale: 0.98, rotOffset: 35 },
+    { count: 14, radius: 81, scale: 1.08, rotOffset: 8 },
+    { count: 15, radius: 95, scale: 1.18, rotOffset: 22 },
+    { count: 16, radius: 110, scale: 1.28, rotOffset: 12 },
+    { count: 17, radius: 126, scale: 1.38, rotOffset: 32 },
+    { count: 18, radius: 143, scale: 1.48, rotOffset: 5 },
+    { count: 19, radius: 161, scale: 1.58, rotOffset: 28 },
+    { count: 20, radius: 180, scale: 1.68, rotOffset: 15 },
+    { count: 21, radius: 200, scale: 1.78, rotOffset: 40 },
   ];
 
   const targets = [];
@@ -41,14 +52,17 @@ function buildRoseLayout() {
   rings.forEach((ring) => {
     const step = 360 / ring.count;
     for (let i = 0; i < ring.count; i++) {
-      const angle = i * step + ring.rotOffset;
+      const angle = i * step + ring.rotOffset + (Math.random() * 2 - 1);
       const rad = (angle * Math.PI) / 180;
+      const yMultiplier = 0.85 + (Math.random() * 0.15);
       targets.push({
         x: Math.cos(rad) * ring.radius,
-        y: Math.sin(rad) * ring.radius * 0.9,
-        rotation: angle + 90,
-        scale: ring.scale,
+        y: Math.sin(rad) * ring.radius * yMultiplier,
+        rotation: angle + 90 + (Math.random() * 6 - 3),
+        scale: ring.scale * (0.9 + Math.random() * 0.2),
         z: z++,
+        tiltX: (Math.random() * 8 - 4),
+        tiltY: (Math.random() * 8 - 4),
       });
     }
   });
@@ -58,24 +72,30 @@ function buildRoseLayout() {
 
 function buildShardConfigs() {
   const targets = buildRoseLayout();
-  return targets.map((t) => {
+  return targets.map((t, index) => {
+    const dist = 200 + Math.random() * 350;
     const angle = Math.random() * Math.PI * 2;
-    const dist = 160 + Math.random() * 260;
+    const scatterX = Math.cos(angle + (index * 0.08)) * dist;
+    const scatterY = Math.sin(angle + (index * 0.08)) * dist * 0.8;
+    
     return {
       ...t,
-      scatterX: Math.cos(angle) * dist,
-      scatterY: Math.sin(angle) * dist,
-      scatterRotation: Math.random() * 360,
+      scatterX: scatterX,
+      scatterY: scatterY,
+      scatterRotation: Math.random() * 720 - 360,
+      scatterScale: 0.2 + Math.random() * 0.4,
+      scatterOpacity: 0.15 + Math.random() * 0.25,
     };
   });
 }
 
 function petalColor(z, total) {
   const t = z / total;
-  const r = Math.round(150 + t * 90);
-  const g = Math.round(10 + t * 20);
-  const b = Math.round(40 + t * 20);
-  return `rgb(${r}, ${g}, ${b})`;
+  const r = Math.round(130 + t * 110);
+  const g = Math.round(5 + t * 30);
+  const b = Math.round(25 + t * 35);
+  const variation = Math.sin(z * 1.8) * 10;
+  return `rgb(${r + variation}, ${g + variation * 0.5}, ${b + variation * 0.3})`;
 }
 
 export default function ScrollRose() {
@@ -84,6 +104,7 @@ export default function ScrollRose() {
   const petalRefs = useRef([]);
   const afterTextRef = useRef(null);
   const subTextRef = useRef(null);
+  const containerRef = useRef(null);
 
   const shards = useMemo(() => buildShardConfigs(), []);
 
@@ -92,30 +113,39 @@ export default function ScrollRose() {
       const petals = petalRefs.current;
 
       petals.forEach((el, i) => {
+        const config = shards[i];
         gsap.set(el, {
-          x: shards[i].scatterX,
-          y: shards[i].scatterY,
-          rotation: shards[i].scatterRotation,
-          scale: 0.5,
-          opacity: 0.35,
+          x: config.scatterX,
+          y: config.scatterY,
+          rotation: config.scatterRotation,
+          scale: config.scatterScale,
+          opacity: config.scatterOpacity,
           transformOrigin: "0px 0px",
         });
       });
 
-      gsap.set(afterTextRef.current, { opacity: 0, y: 30 });
-      gsap.set(subTextRef.current, { opacity: 0, y: 20 });
+      gsap.set(afterTextRef.current, { opacity: 0, y: 50, scale: 0.7 });
+      gsap.set(subTextRef.current, { opacity: 0, y: 40, scale: 0.8 });
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=2500",
-          scrub: 1,
+          end: "+=2800",
+          scrub: 1.2,
           pin: true,
+          invalidateOnRefresh: true,
+        },
+        defaults: {
+          ease: "power2.inOut",
         },
       });
 
       petals.forEach((el, i) => {
+        const ringIndex = Math.floor(i / 10);
+        const delay = (i * 0.005) + (ringIndex * 0.015);
+        const duration = 0.5 + Math.random() * 0.4;
+        
         tl.to(
           el,
           {
@@ -124,28 +154,75 @@ export default function ScrollRose() {
             rotation: shards[i].rotation,
             scale: shards[i].scale,
             opacity: 1,
-            duration: 1,
+            duration: duration,
             ease: "power2.out",
           },
-          i * 0.02
+          delay
         );
       });
 
       tl.to(
         svgRef.current,
-        { scale: 1.05, duration: 0.4, ease: "power1.inOut" },
-        "-=0.3"
+        {
+          scale: 1.12,
+          duration: 0.5,
+          ease: "power1.inOut",
+        },
+        "-=0.5"
       );
+
       tl.to(
-        afterTextRef.current,
-        { opacity: 1, y: 0, duration: 0.4, ease: "power1.out" },
+        svgRef.current,
+        {
+          scale: 1.07,
+          duration: 0.3,
+          ease: "power1.inOut",
+        },
         "-=0.2"
       );
+
+      tl.to(
+        afterTextRef.current,
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.5,
+          ease: "back.out(2)",
+        },
+        "-=0.2"
+      );
+
       tl.to(
         subTextRef.current,
-        { opacity: 1, y: 0, duration: 0.4, ease: "power1.out" },
-        "-=0.1"
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.4,
+          ease: "back.out(1.8)",
+        },
+        "-=0.2"
       );
+
+      tl.to(
+        svgRef.current,
+        {
+          y: -6,
+          duration: 1,
+          ease: "sine.inOut",
+        },
+        "+=0.2"
+      ).to(
+        svgRef.current,
+        {
+          y: 0,
+          duration: 1,
+          ease: "sine.inOut",
+        },
+        "+=0.1"
+      );
+
     }, sectionRef);
 
     return () => ctx.revert();
@@ -154,63 +231,101 @@ export default function ScrollRose() {
   return (
     <section
       ref={sectionRef}
+      className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden"
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#faf4ea",
-        overflow: "hidden",
+        background: "linear-gradient(160deg, #faf4ea 0%, #f2e6d2 55%, #e9d6b6 100%)",
+        padding: "20px",
       }}
     >
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
-        width={380}
-        height={380}
-        style={{ transformOrigin: "center center", overflow: "visible" }}
-      >
-        <g transform={`translate(${CENTER}, ${CENTER})`}>
-          {shards.map((s, i) => (
-            <path
-              key={i}
-              ref={(el) => (petalRefs.current[i] = el)}
-              d={PETAL_PATH}
-              fill={petalColor(s.z, shards.length)}
-            />
-          ))}
-        </g>
-      </svg>
+      {/* Arka plan gradientleri */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: "radial-gradient(circle at 30% 40%, rgba(201, 164, 92, 0.1), transparent 70%)"
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: "radial-gradient(circle at 70% 60%, rgba(156, 124, 60, 0.08), transparent 60%)"
+          }}
+        />
+      </div>
 
-      <p
-        ref={afterTextRef}
-        className={greatVibes.className}
+      {/* Gül SVG */}
+      <div
+        ref={containerRef}
+        className="relative z-10"
         style={{
-          marginTop: 20,
-          color: "#9c7a3c",
-          fontSize: 56,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        Şeyda &amp; Ahmet
-      </p>
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+          width={440}
+          height={440}
+          style={{
+            transformOrigin: "center center",
+            overflow: "visible",
+            filter: "drop-shadow(0 15px 40px rgba(156, 124, 60, 0.2))",
+          }}
+        >
+          <g transform={`translate(${CENTER}, ${CENTER})`}>
+            {shards.map((s, i) => (
+              <path
+                key={i}
+                ref={(el) => (petalRefs.current[i] = el)}
+                d={PETAL_PATH}
+                fill={petalColor(s.z, shards.length)}
+                style={{
+                  transition: "all 0.3s ease",
+                  stroke: "rgba(200, 150, 100, 0.05)",
+                  strokeWidth: 0.5,
+                }}
+              />
+            ))}
+          </g>
+        </svg>
+      </div>
 
-         <p
-        ref={subTextRef}
-        className={playfair.className}
-        style={{
-          marginTop: 10,
-          color: "#7a6440",
-          fontSize: 13,
-          letterSpacing: 4,
-          textTransform: "uppercase",
-          textAlign: "center",
-          maxWidth: "80vw",
-          padding: "0 16px",
-        }}
-      >
-        Aşkımızın en güzel gününe davetlisiniz
-      </p>
+      {/* İsim ve alt yazı */}
+      <div className="relative z-10 flex flex-col items-center mt-6">
+        <p
+          ref={afterTextRef}
+          className={greatVibes.className}
+          style={{
+            color: "#9c7a3c",
+            fontSize: "clamp(40px, 10vw, 64px)",
+            textShadow: "0 2px 30px rgba(156, 124, 60, 0.2)",
+            lineHeight: 1.2,
+            letterSpacing: 2,
+          }}
+        >
+          Şeyda &amp; Ahmet
+        </p>
+
+        <p
+          ref={subTextRef}
+          className={playfair.className}
+          style={{
+            marginTop: 14,
+            color: "#7a6440",
+            fontSize: "clamp(12px, 2.2vw, 15px)",
+            letterSpacing: 5,
+            textTransform: "uppercase",
+            textAlign: "center",
+            maxWidth: "80vw",
+            padding: "0 16px",
+            opacity: 0.85,
+          }}
+        >
+          Aşkımızın en güzel gününe davetlisiniz
+        </p>
+      </div>
     </section>
   );
 }

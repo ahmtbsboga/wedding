@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono , Great_Vibes} from "next/font/google";
 import "./globals.css";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,7 +29,9 @@ export default function RootLayout({ children }) {
       className={`${greatVibes.className}  h-full antialiased`}
     >
  
-    <body className="min-h-full flex flex-col bg-neutral-200">{children}</body>
+    <body className="min-h-full flex flex-col bg-neutral-200">
+    
+      {children}</body>
  
     </html>
   );

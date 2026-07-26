@@ -5,17 +5,12 @@
  * Kullanıcı scroll ettikçe:
  *  1) Mum mührü kırılır
  *  2) Zarfın kapağı arkaya doğru döner VE aynı anda solar
- *     (böylece dönerken yazının üstünde çirkin bir şekilde
- *      "asılı kalmıyor" - yumuşakça kayboluyor)
  *  3) Kapak tamamen kaybolduktan SONRA içindeki davetiye kartı
  *     yukarı kayarak büyür
  *  4) Zarf kaybolur, davetiye tüm ekranı kaplar
  *
  * TAMAMEN RESPONSIVE: tüm boyutlar clamp() / aspect-ratio ile
- * viewport genişliğine göre otomatik ölçekleniyor, mobilde de
- * masaüstünde de orantılı görünüyor.
- *
- * KURULUM: npm install gsap
+ * viewport genişliğine göre otomatik ölçekleniyor.
  * ------------------------------------------------------------
  */
 
@@ -39,6 +34,74 @@ const greatVibes = Great_Vibes({
   subsets: ["latin"],
   weight: "400",
 });
+
+// Çiçek component'leri - Envelope dışında tanımla
+const FlowerCorner = ({ position, size = 30 }) => {
+  const styleMap = {
+    'top-left': { top: -5, left: -5 },
+    'top-right': { top: -5, right: -5 },
+    'bottom-left': { bottom: -5, left: -5 },
+    'bottom-right': { bottom: -5, right: -5 },
+  };
+
+  const pos = styleMap[position] || styleMap['top-left'];
+
+  return (
+    <div
+      className="absolute"
+      style={{
+        ...pos,
+        width: size,
+        height: size,
+        zIndex: 5,
+        opacity: 0.8,
+      }}
+    >
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Yapraklar */}
+        <ellipse cx="50" cy="20" rx="15" ry="20" fill="#ffb7c5" opacity="0.8" />
+        <ellipse cx="30" cy="35" rx="15" ry="20" fill="#ff9cb0" opacity="0.7" transform="rotate(-45, 30, 35)" />
+        <ellipse cx="70" cy="35" rx="15" ry="20" fill="#ff9cb0" opacity="0.7" transform="rotate(45, 70, 35)" />
+        <ellipse cx="25" cy="60" rx="15" ry="20" fill="#ffb7c5" opacity="0.6" transform="rotate(-20, 25, 60)" />
+        <ellipse cx="75" cy="60" rx="15" ry="20" fill="#ffb7c5" opacity="0.6" transform="rotate(20, 75, 60)" />
+        
+        {/* Çiçek merkezi */}
+        <circle cx="50" cy="50" r="12" fill="#ffd1dc" opacity="0.9" />
+        <circle cx="50" cy="50" r="6" fill="#ff6b8a" opacity="0.6" />
+        
+        {/* Küçük detaylar */}
+        <circle cx="45" cy="45" r="2" fill="#ff4d6d" opacity="0.4" />
+        <circle cx="55" cy="45" r="2" fill="#ff4d6d" opacity="0.4" />
+        <circle cx="50" cy="52" r="2" fill="#ff4d6d" opacity="0.4" />
+      </svg>
+    </div>
+  );
+};
+
+const SmallFlower = ({ x, y, size = 15 }) => (
+  <div
+    className="absolute"
+    style={{
+      left: x,
+      top: y,
+      width: size,
+      height: size,
+      zIndex: 4,
+      opacity: 0.5,
+      transform: 'translate(-50%, -50%)',
+    }}
+  >
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <circle cx="50" cy="30" r="15" fill="#ffb7c5" opacity="0.6" />
+      <circle cx="30" cy="50" r="15" fill="#ff9cb0" opacity="0.5" />
+      <circle cx="70" cy="50" r="15" fill="#ff9cb0" opacity="0.5" />
+      <circle cx="40" cy="70" r="15" fill="#ffb7c5" opacity="0.4" />
+      <circle cx="60" cy="70" r="15" fill="#ffb7c5" opacity="0.4" />
+      <circle cx="50" cy="50" r="10" fill="#ffd1dc" opacity="0.7" />
+      <circle cx="50" cy="50" r="5" fill="#ff6b8a" opacity="0.5" />
+    </svg>
+  </div>
+);
 
 export default function Envelope() {
   const sectionRef = useRef(null);
@@ -64,33 +127,27 @@ export default function Envelope() {
         },
       });
 
-      // 1) İpucu yazısı kaybolur
       tl.to(hintRef.current, { opacity: 0, y: -12, duration: 0.15 }, 0)
-        // 2) Mühür kırılır
         .to(
           sealRef.current,
           { scale: 0, opacity: 0, duration: 0.5, ease: "back.in(2)" },
           0.1
         )
-        // 3) Kapak arkaya doğru döner
         .to(
           flapRef.current,
           { rotateX: -175, duration: 1, ease: "power2.inOut" },
           0.25
         )
-        // 4) Kapak dönerken YUMUŞAKÇA solur -> yazının üstünde asılı kalmaz
         .to(
           flapRef.current,
           { opacity: 0, duration: 0.45, ease: "power1.in" },
           0.65
         )
-        // 5) Kapak neredeyse kaybolduktan SONRA davetiye kartı belirir
         .to(
           letterRef.current,
           { y: "-32%", opacity: 1, scale: 1, duration: 0.9, ease: "power2.out" },
           0.85
         )
-        // 6) Zarf tamamen kaybolur, davetiye büyüyerek ekranı kaplar
         .to(
           envelopeWrapRef.current,
           { opacity: 0, duration: 0.5, ease: "power1.in" },
@@ -109,35 +166,44 @@ export default function Envelope() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden px-4"
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden"
       style={{
         background:
           "linear-gradient(160deg, #faf4ea 0%, #f2e6d2 55%, #e9d6b6 100%)",
+        padding: "clamp(8px, 2vw, 20px)",
       }}
     >
       <div
         style={{
           perspective: "1600px",
-          width: "clamp(280px, 82vw, 460px)",
+          width: "min(100%, 660px)",
+          height: "min(100vh, 700px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
         }}
       >
-        {/* Zarf ana çerçevesi: genişlik responsive, yükseklik aspect-ratio ile orantılı */}
+        {/* Zarf ana çerçevesi */}
         <div
           ref={envelopeWrapRef}
           className="relative w-full"
-          style={{ aspectRatio: "10 / 7" }}
+          style={{
+            aspectRatio: "10 / 7",
+            maxHeight: "min(80vh, 600px)",
+            width: "100%",
+          }}
         >
           {/* Zarf gövdesi */}
           <div
             className="absolute inset-0 rounded-sm"
             style={{
               background: "linear-gradient(160deg,#fffdf8,#f2e4c9)",
-              border: "1px solid #c9a45c",
               boxShadow: "0 20px 45px -12px rgba(90,65,20,0.35)",
             }}
           />
 
-          {/* Davetiye kartı (zarfın içinden çıkacak) */}
+          {/* Davetiye kartı - ÇİÇEKLİ KÖŞELER */}
           <div
             ref={letterRef}
             className="absolute left-1/2 flex flex-col items-center justify-center text-center rounded-sm px-5 sm:px-7"
@@ -149,14 +215,35 @@ export default function Envelope() {
               background: "#fffdf7",
               border: "1px solid #d8c090",
               boxShadow: "0 10px 30px -8px rgba(90,65,20,0.3)",
+              position: "relative",
+              overflow: "visible",
             }}
           >
+            {/* Köşe çiçekleri */}
+            <FlowerCorner position="top-left" size={30} />
+            <FlowerCorner position="top-right" size={30} />
+            <FlowerCorner position="bottom-left" size={30} />
+            <FlowerCorner position="bottom-right" size={30} />
+            
+            {/* Kenar çiçek detayları */}
+            <SmallFlower x="15%" y="15%" size={12} />
+            <SmallFlower x="85%" y="15%" size={12} />
+            <SmallFlower x="15%" y="85%" size={12} />
+            <SmallFlower x="85%" y="85%" size={12} />
+            
+            <SmallFlower x="50%" y="8%" size={10} />
+            <SmallFlower x="50%" y="92%" size={10} />
+            <SmallFlower x="8%" y="50%" size={10} />
+            <SmallFlower x="92%" y="50%" size={10} />
+
             <p
               className={greatVibes.className}
               style={{
-                fontSize: "clamp(28px, 8vw, 42px)",
+                fontSize: "clamp(24px, 6vw, 42px)",
                 color: "#9c7a3c",
                 lineHeight: 1.15,
+                position: "relative",
+                zIndex: 6,
               }}
             >
               Şeyda &amp; Ahmet
@@ -166,24 +253,27 @@ export default function Envelope() {
                 width: 42,
                 height: 1,
                 background: "#c9a45c",
-                margin: "clamp(12px, 3vw, 18px) 0",
+                margin: "clamp(10px, 2vw, 18px) 0",
+                position: "relative",
+                zIndex: 6,
               }}
             />
             <p
               className={playfair.className}
               style={{
-                fontSize: "clamp(10px, 2.6vw, 13px)",
+                fontSize: "clamp(9px, 2vw, 13px)",
                 letterSpacing: 3,
                 color: "#7a6440",
                 textTransform: "uppercase",
+                position: "relative",
+                zIndex: 6,
               }}
             >
               Sizi düğünümüze davet ediyoruz
             </p>
           </div>
 
-          {/* Zarfın açılan kapağı (her zaman en üstte render edilir, kapalıyken
-              davetiyeyi tamamen örter; açılırken hem döner hem solar) */}
+          {/* Zarfın açılan kapağı */}
           <div
             ref={flapRef}
             className="absolute left-0 top-0 w-full"
@@ -194,49 +284,69 @@ export default function Envelope() {
               transformOrigin: "top center",
               transformStyle: "preserve-3d",
               backfaceVisibility: "hidden",
+              zIndex: 10,
             }}
           >
-            {/* Mum mührü */}
+            {/* Mum mührü - tam ortada */}
             <div
               ref={sealRef}
               className="absolute rounded-full flex items-center justify-center"
               style={{
-                width: "clamp(36px, 9vw, 48px)",
-                height: "clamp(36px, 9vw, 48px)",
+                width: "clamp(60px, 12vw, 80px)",
+                height: "clamp(60px, 12vw, 80px)",
                 left: "50%",
-                top: "58%",
+                top: "50%",
                 transform: "translate(-50%, -50%)",
                 background:
                   "radial-gradient(circle at 35% 30%, #c14b41, #7c211c)",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.4)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.4), inset 0 -2px 6px rgba(0,0,0,0.2)",
                 fontFamily: playfair.style.fontFamily,
-                fontSize: "clamp(9px, 2.2vw, 11px)",
+                fontSize: "clamp(10px, 2.5vw, 14px)",
                 color: "#f6e6c8",
                 letterSpacing: 1,
+                fontWeight: 600,
+                textShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                zIndex: 20,
               }}
             >
-              Ş&amp;A
+              Ş &amp; A
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Kaydırma ipucu */}
-      <div
-        ref={hintRef}
-        className="absolute bottom-10 sm:bottom-14 left-0 right-0 text-center px-4"
-      >
-        <p
-          className={playfair.className}
-          style={{
-            fontSize: "clamp(10px, 2.6vw, 12px)",
-            letterSpacing: 4,
-            color: "#8a7248",
-            textTransform: "uppercase",
-          }}
-        >
-          Zarfı açmak için kaydırın
-        </p>
+          {/* Kaydırma ipucu */}
+          <div
+            ref={hintRef}
+            className="absolute left-0 right-0 flex justify-center items-center"
+            style={{
+              bottom: "5%",
+              zIndex: 30,
+              pointerEvents: "none",
+            }}
+          >
+            <p
+              className={`${playfair.className} text-center`}
+              style={{
+                fontSize: "clamp(12px, 2.5vw, 18px)",
+                letterSpacing: 4,
+                color: "#8a7248",
+                textTransform: "uppercase",
+                width: "100%",
+                opacity: 0.9,
+                textShadow: "0 2px 8px rgba(255,255,255,0.8), 0 1px 4px rgba(255,255,255,0.6)",
+                background: "rgba(255,255,255,0.3)",
+                backdropFilter: "blur(2px)",
+                padding: "8px 16px",
+                borderRadius: "20px",
+                display: "inline-block",
+                width: "auto",
+                margin: "0 auto",
+                border: "1px solid rgba(255,255,255,0.4)",
+              }}
+            >
+              ⬇ Zarfı açmak için kaydırın ⬇
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
